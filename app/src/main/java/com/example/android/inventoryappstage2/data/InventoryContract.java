@@ -1,5 +1,6 @@
 package com.example.android.inventoryappstage2.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
@@ -13,8 +14,20 @@ public final class InventoryContract {
     private InventoryContract() {
     }
 
+    //Content Authority constant
+    public static final String CONTENT_AUTHORITY = "com.example.android.inventoryappstage2";
+
+    //Constant for base URI actions will be appended to this URI value
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+
+    //Constant for the table name that will be accessed
+    public static final String PATH_INVENTORY = "inventory";
+
     //Inner class to define the inventory table
     public static final class InventoryEntry implements BaseColumns {
+
+        //URI to access pets table
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_INVENTORY);
 
         //Name of table for inventory items
         public static final String TABLE_NAME = "inventory";

@@ -1,6 +1,9 @@
 package com.example.android.inventoryappstage2;
 
+import android.app.LoaderManager;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -8,16 +11,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.android.inventoryappstage2.data.InventoryContract.InventoryEntry;
 import com.example.android.inventoryappstage2.data.InventoryDbHelper;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String LOG_TAG = MainActivity.class.getSimpleName();
     // Database helper that will provide access to the database
     private InventoryDbHelper inventoryDbHelper;
+
+    InventoryCursorAdapter listViewCursorAdapter;
+
+    private static final int inventory_loader_indicator = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +41,17 @@ public class MainActivity extends AppCompatActivity {
         View emptyView = findViewById(R.id.empty_view);
         inventoryListView.setEmptyView(emptyView);
 
+        listViewCursorAdapter = new InventoryCursorAdapter( this, null );
+        inventoryListView.setAdapter( listViewCursorAdapter );
+
+        //start the loadermanager
+        getLoaderManager().initLoader( inventory_loader_indicator, null, this );
+
         //Method call to insert a dummy row of data into the table
         insertData();
 
         //Method call to retrieve the data from the database and display the data on the screen
-        displayDatabaseInfo();
+        //displayDatabaseInfo();
     }
 
     //Method to insert dummy data into database.
@@ -130,7 +142,7 @@ public class MainActivity extends AppCompatActivity {
         Log.d( LOG_TAG, "Row number inserted: " + newRowId );
     }
 
-    //Method used to retrieve data from the database and display in textview.
+/*    //Method used to retrieve data from the database and display in textview.
     private void displayDatabaseInfo() {
         // Create and/or open a database to read from it
         SQLiteDatabase db = inventoryDbHelper.getReadableDatabase();
@@ -195,5 +207,27 @@ public class MainActivity extends AppCompatActivity {
             // Close the cursor
             cursor.close();
         }
+    }*/
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        //The _ID is always needed for any cursor you create
+        String[] projection = {
+                InventoryEntry._ID,
+                InventoryEntry.COLUMN_PRODUCT_NAME,
+                InventoryEntry.COLUMN_PRICE,
+                InventoryEntry.COLUMN_QUANTITY};
+
+        return new CursorLoader( this, InventoryEntry.CONTENT_URI, projection, null, null, null );
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        listViewCursorAdapter.swapCursor( data );
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        listViewCursorAdapter.swapCursor( null );
     }
 }

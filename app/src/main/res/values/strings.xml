@@ -3,4 +3,5 @@
     <string name="empty_view_title_text">Get started by adding some inventory.</string>
     <string name="qty_available">Qty. Available:</string>
     <string name="price">Price: $</string>
+    <string name="unknown_price">Price not found.</string>
 </resources>
