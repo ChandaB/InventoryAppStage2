@@ -3,12 +3,19 @@ package com.example.android.inventoryappstage2;
 import android.app.LoaderManager;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 
@@ -25,10 +32,62 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     private static final int inventory_loader_indicator = 0;
 
+    private DrawerLayout mDrawerLayout;
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer( GravityCompat.START);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        ActionBar actionbar = getSupportActionBar();
+        actionbar.setDisplayHomeAsUpEnabled(true);
+        actionbar.setHomeAsUpIndicator(R.drawable.ic_menu);
+
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
+                    @Override
+                    public boolean onNavigationItemSelected(MenuItem menuItem) {
+                        // set item as selected to persist highlight
+                        menuItem.setChecked(true);
+                        // close drawer when item is tapped
+                        mDrawerLayout.closeDrawers();
+
+                        int selectedOption = menuItem.getItemId();
+                        switch (selectedOption) {
+                            case R.id.add_item:
+                                Intent i = new Intent(MainActivity.this, EditorActivity.class);
+                                startActivity(i);
+                                break;
+                            case R.id.edit_item:
+                                //Do some thing here
+                                // add navigation drawer item onclick method here
+                                break;
+                            case R.id.delete_all_data:
+                                //Do some thing here
+                                // add navigation drawer item onclick method here
+                                break;
+                        // Add code here to update the UI based on the item selected
+                        // For example, swap UI fragments here
+
+                        return true;
+                    }
+                });
 
         // Instantiate a new InventoryDbHelper
         // passing the context (this), which is the current activity.
@@ -48,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         getLoaderManager().initLoader( inventory_loader_indicator, null, this );
 
         //Method call to insert a dummy row of data into the table
-        insertData();
+        //insertData();
 
         //Method call to retrieve the data from the database and display the data on the screen
         //displayDatabaseInfo();
