@@ -61,7 +61,7 @@ public class InventoryProvider extends ContentProvider {
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
         {
-            Log.d( LOG_TAG, "Insert URI " + uri + ", selection " + selection + ", selectionArgs " + selectionArgs);
+            Log.d( LOG_TAG, "QUERY URI " + uri + ", selection " + selection + ", selectionArgs " + selectionArgs);
             // Get readable database
             SQLiteDatabase database = inventoryDbHelper.getReadableDatabase();
 
@@ -119,16 +119,159 @@ public class InventoryProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        Log.d( LOG_TAG, "Insert URI " + uri + ", values " + values.toString() );
+
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case INVENTORY:
+                return insertInventory(uri, values);
+            default:
+                throw new IllegalArgumentException("Insertion is not supported for " + uri);
+        }
+    }
+
+    private Uri insertInventory(Uri uri, ContentValues values) {
+        // Check that the name is not null
+        String name = values.getAsString(InventoryEntry.COLUMN_PRODUCT_NAME);
+        if (name == null) {
+            throw new IllegalArgumentException("You must provide the product name");
+        }
+
+        // Check that the media type is valid
+        Integer mediaType = values.getAsInteger(InventoryEntry.COLUMN_MEDIA_TYPE);
+        if (mediaType == null || !InventoryEntry.isValidMediaType( mediaType) ) {
+            throw new IllegalArgumentException("You must select a valid media type");
+        }
+
+        // If the weight is provided, check that it's greater than or equal to 0 kg
+        Integer quantity = values.getAsInteger(InventoryEntry.COLUMN_QUANTITY);
+        if (quantity != null && quantity < 0) {
+            throw new IllegalArgumentException("Quantity must be 0 or greater");
+        }
+
+        //Instantiate writable database object
+        SQLiteDatabase database = inventoryDbHelper.getWritableDatabase();
+
+        //Insert a new pet
+        long id = database.insert( InventoryEntry.TABLE_NAME, null, values );
+
+        //Check to see if insert was successful, display error if it wasn't
+        if(id == -1) {
+            Log.e(LOG_TAG, "Failed to insert record for " + uri + " in database.");
+            return null;
+        }
+
+        //notify listeners that data has changes for the content URI
+        getContext().getContentResolver().notifyChange( uri, null );
+        // Once we know the ID of the new row in the table,
+        // return the new URI with the ID appended to the end of it
+        return ContentUris.withAppendedId(uri, id);
+
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        // Get writeable database
+        SQLiteDatabase database = inventoryDbHelper.getWritableDatabase();
+
+        //Create variable to keep track of number of rows deleted
+        int rowsDeleted;
+
+        final int match = sUriMatcher.match(uri);
+
+        //Determine which URI is being called for the delete (whether to delete all data in table or single row
+        switch (match) {
+            case INVENTORY:
+                // Delete all rows that match the selection and selection args
+                rowsDeleted = database.delete(InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            case INVENTORY_ID:
+                // Delete a single row given by the ID in the URI
+                selection = InventoryEntry._ID + "=?";
+                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                // Delete a single row given by the ID in the URI
+                rowsDeleted = database.delete(InventoryEntry.TABLE_NAME, selection, selectionArgs);
+                break;
+            default:
+                throw new IllegalArgumentException("Deletion is not supported for " + uri);
+        }
+
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (rowsDeleted != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        //Number of rows deleted by this action
+        return rowsDeleted;
     }
 
     @Override
-    public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+    public int update(@NonNull Uri uri, @Nullable ContentValues contentValues, @Nullable String selection, @Nullable String[] selectionArgs) {
+        final int match = sUriMatcher.match(uri);
+        switch (match) {
+            case INVENTORY:
+                return updateInventory(uri, contentValues, selection, selectionArgs);
+            case INVENTORY_ID:
+                // For the INVENTORY_ID code, extract out the ID from the URI,
+                // so we know which row to update. Selection will be "_id=?" and selection
+                // arguments will be a String array containing the actual ID.
+                selection = InventoryEntry._ID + "=?";
+                selectionArgs = new String[] { String.valueOf(ContentUris.parseId(uri)) };
+                return updateInventory(uri, contentValues, selection, selectionArgs);
+            default:
+                throw new IllegalArgumentException("Update is not supported for " + uri);
+        }
+    }
+
+    private int updateInventory(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        // If the {@link PetEntry#COLUMN_PET_NAME} key is present,
+        // check that the name value is not null.
+        if (values.containsKey(InventoryEntry.COLUMN_PRODUCT_NAME)) {
+            String name = values.getAsString(InventoryEntry.COLUMN_PRODUCT_NAME);
+            if (name == null) {
+                throw new IllegalArgumentException("You must specify a Product name");
+            }
+        }
+
+        // If the {@link PetEntry#COLUMN_PET_GENDER} key is present,
+        // check that the gender value is valid.
+        if (values.containsKey(InventoryEntry.COLUMN_MEDIA_TYPE)) {
+            Integer mediaType = values.getAsInteger(InventoryEntry.COLUMN_MEDIA_TYPE);
+            if (mediaType == null || !InventoryEntry.isValidMediaType(mediaType)) {
+                throw new IllegalArgumentException("This product requires a valid mediaType");
+            }
+        }
+
+        // If the {@link PetEntry#COLUMN_PET_WEIGHT} key is present,
+        // check that the weight value is valid.
+        if (values.containsKey(InventoryEntry.COLUMN_QUANTITY)) {
+            // Check that the weight is greater than or equal to 0 kg
+            Integer quantity = values.getAsInteger(InventoryEntry.COLUMN_QUANTITY);
+            if (quantity != null && quantity < 0) {
+                throw new IllegalArgumentException("Quantity must be 0 or greater");
+            }
+        }
+
+        // If there are no values to update, then don't try to update the database
+        if (values.size() == 0) {
+            return 0;
+        }
+
+        // Otherwise, get writeable database to update the data
+        SQLiteDatabase database = inventoryDbHelper.getWritableDatabase();
+
+        // Perform the update on the database and get the number of rows affected
+        int rowsUpdated = database.update(InventoryEntry.TABLE_NAME, values, selection, selectionArgs);
+
+        // If 1 or more rows were updated, then notify all listeners that the data at the
+        // given URI has changed
+        if (rowsUpdated != 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
+
+        // Returns the number of database rows affected by the update statement
+        return rowsUpdated;
+
     }
 }

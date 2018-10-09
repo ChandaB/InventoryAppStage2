@@ -5,11 +5,11 @@
             android:id="@+id/add_item"
             android:title="Add Inventory Item" />
         <item
-            android:id="@+id/edit_item"
-            android:title="Edit Item" />
+            android:id="@+id/insert_dummy_data"
+            android:title="Insert Dummy Data" />
         <item
             android:id="@+id/delete_all_data"
-            android:title="Delete all data" />
+            android:title="Delete All Inventory Data" />
     </group>
 
 </menu>

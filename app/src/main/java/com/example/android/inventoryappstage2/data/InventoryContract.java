@@ -54,11 +54,23 @@ public final class InventoryContract {
         public static final String COLUMN_SUPPLIER_PHONE = "supplier_phone";
 
         //Values to identify what type of book and/or media the product is
+        public static final int MEDIA_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TYPE_HARDCOVER = 1;
         public static final int MEDIA_TYPE_PAPERBACK = 2;
         public static final int MEDIA_TYPE_AUDIOBOOK = 3;
         public static final int MEDIA_TYPE_KINDLE = 4;
         public static final int MEDIA_TYPE_EPUB = 5;
         public static final int MEDIA_TYPE_MP3 = 6;
+
+        public static boolean isValidMediaType(Integer mediaType) {
+            if (mediaType == MEDIA_TYPE_UNKNOWN || mediaType == MEDIA_TYPE_PAPERBACK ||
+            mediaType == MEDIA_TYPE_AUDIOBOOK || mediaType == MEDIA_TYPE_HARDCOVER ||
+            mediaType == MEDIA_TYPE_KINDLE || mediaType == MEDIA_TYPE_EPUB ||
+                    mediaType == MEDIA_TYPE_MP3
+                    ) {
+                return true;
+            }
+            return false;
+        }
     }
 }
