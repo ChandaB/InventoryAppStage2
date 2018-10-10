@@ -22,23 +22,37 @@ import com.example.android.inventoryappstage2.data.InventoryContract.InventoryEn
 
 public class InventoryCursorAdapter extends CursorAdapter {
 
- //   int quantityForCalc;
- //   String cursorQuantity;
+    //Global context variable
     Context thisContext;
 
+    //Constructor
     public InventoryCursorAdapter(Context context, Cursor c) {
         super( context, c, 0 );
     }
 
+    /**
+     * Inflate the view
+     * @param context
+     * @param cursor
+     * @param parent
+     * @return
+     */
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
         return LayoutInflater.from( context ).inflate( R.layout.list_item, parent, false );
     }
 
+    /**
+     * Bind the view with the data
+     * @param view
+     * @param context
+     * @param cursor
+     */
     @Override
     public void bindView(View view, final Context context, final Cursor cursor) {
 
         thisContext = context;
+
         //Set textviews for the list item
         TextView productName = view.findViewById( R.id.productName );
         TextView mediaType = view.findViewById( R.id.mediaType );
@@ -46,6 +60,9 @@ public class InventoryCursorAdapter extends CursorAdapter {
         TextView price_label = view.findViewById( R.id.price_label );
         final TextView quantity = view.findViewById( R.id.quantity );
         Button saleButton = view.findViewById( R.id.sale_button );
+
+        //Make sure the view is visible on load of new item
+        price_label.setVisibility( View.VISIBLE );
 
         //Find the columns to display in the listview
         int idColumnIndex = cursor.getColumnIndex( InventoryEntry._ID );
@@ -61,9 +78,6 @@ public class InventoryCursorAdapter extends CursorAdapter {
         String cursorPrice = cursor.getString( priceColumnIndex );
         double listViewPrice = cursor.getDouble( priceColumnIndex );
         final int cursorQuantity = cursor.getInt( quantityColumnIndex );
-        //quantityForCalc = cursor.getInt( quantityColumnIndex );
-
-
 
         //Determine media type string to display
         switch (cursorMediaType) {
@@ -85,8 +99,6 @@ public class InventoryCursorAdapter extends CursorAdapter {
             case 6:
                 mediaType.setText( "MP3" );
                 break;
-
-
         }
 
         // If the price is empty or null, then show "price not found"
@@ -99,46 +111,43 @@ public class InventoryCursorAdapter extends CursorAdapter {
             cursorPrice = "FREE";
         }
 
+        //set the textvalues for the list item
         productName.setText( cursorProductName );
         price.setText( cursorPrice );
-        quantity.setText(Integer.toString(cursorQuantity));
+        quantity.setText( Integer.toString( cursorQuantity ) );
 
 
+        //set and onclick listener to trigger quantity update when clicked
         saleButton.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                updateQuantity(cursorQuantity, id, context);
-
-
+                updateQuantity( cursorQuantity, id, context );
             }
         } );
-
-
-
-        //set text at current cursor
-
-        //mediaType.setText( cursorMediaType );
-
-
     }
 
+    /**
+     * Method to calculate and update the quantity in the database when the report sale button is clicked.
+     * @param quantityForCalc
+     * @param id
+     * @param context
+     */
     private void updateQuantity(int quantityForCalc, String id, Context context) {
-        //Method used to update the quantity in the text view, in addition to updating the database
-        //when the Report Sale button is clicked.
-       if (quantityForCalc == 0) {
-            Toast.makeText( context, R.string.editor_update_inventory_less_than_zero, Toast.LENGTH_SHORT).show();
+        if (quantityForCalc == 0) {
+            Toast.makeText( context, R.string.editor_update_inventory_less_than_zero, Toast.LENGTH_SHORT ).show();
             return;
         } else {
             Log.d( "BeforeQtyForCalc", "Before Calculation " + quantityForCalc );
+            //Deducting one from inventory (quantity)
             quantityForCalc = quantityForCalc - 1;
             Log.d( "AfterQtyForCalc", "After Calculation " + quantityForCalc );
 
+            //Setting up DB stuff to update the new quantity in the database
             ContentValues values = new ContentValues();
-            values.put( InventoryEntry.COLUMN_QUANTITY, quantityForCalc);
-            Uri currentInventoryItemUri = Uri.withAppendedPath(InventoryEntry.CONTENT_URI, id);
-            Log.d("CURRENTURI", "URI : " + currentInventoryItemUri);
-            thisContext.getContentResolver().update(currentInventoryItemUri, values, null, null);
+            values.put( InventoryEntry.COLUMN_QUANTITY, quantityForCalc );
+            Uri currentInventoryItemUri = Uri.withAppendedPath( InventoryEntry.CONTENT_URI, id );
+            Log.d( "CURRENTURI", "URI : " + currentInventoryItemUri );
+            thisContext.getContentResolver().update( currentInventoryItemUri, values, null, null );
         }
     }
 }

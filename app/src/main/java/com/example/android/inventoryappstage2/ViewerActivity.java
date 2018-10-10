@@ -7,7 +7,6 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -19,8 +18,6 @@ import com.example.android.inventoryappstage2.data.InventoryContract.InventoryEn
 /**
  * Created by ChandaB on 10/7/2018.
  */
-
-
 public class ViewerActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
@@ -48,7 +45,7 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
      */
     private TextView supplierPhoneTextView;
     /**
-     * Content URI for the existing pet (null if it's a new pet)
+     * Content URI for the inventory item
      */
     private Uri currentInventoryItemUri;
 
@@ -58,7 +55,7 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_viewer );
 
-        //Instantiate the new intent for this pet
+        //Instantiate the new intent for this inventory item
         Intent intent = getIntent();
         currentInventoryItemUri = intent.getData();
         Log.d( "VIEWERACTCURRENTINVURI", "Current URI = " + currentInventoryItemUri );
@@ -71,36 +68,37 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
         supplierNameTextView = findViewById( R.id.view_supplier_name );
         supplierPhoneTextView = findViewById( R.id.view_phone );
 
-        getLoaderManager().initLoader(0, null, this            );
+        //Initialize the loader
+        getLoaderManager().initLoader( 0, null, this );
 
         // Setup FAB to open EditorActivity
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fab = findViewById( R.id.fab );
+        fab.setOnClickListener( new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ViewerActivity.this, EditorActivity.class);
-
-                //Form the URL by appending the selected pet's ID to the base URI
+                Intent intent = new Intent( ViewerActivity.this, EditorActivity.class );
+                //Form the URL by appending the selected inventory item's ID to the base URI
                 Uri currentInventoryUri = currentInventoryItemUri;
-
-                Log.d("CAPTURINGURIONITEMCLICK" , "URI: " + currentInventoryUri );
-
+                Log.d( "CAPTURINGURIONITEMCLICK", "URI: " + currentInventoryUri );
                 //Set the URI on the data field of the intent
                 intent.setData( currentInventoryUri );
-
-                //Launce the editor activity
+                //Launch the editor activity
                 startActivity( intent );
-
-                startActivity(intent);
             }
-        });
-
+        } );
     }
 
+    /**
+     * select inventory item by ID
+     *
+     * @param i
+     * @param bundle
+     * @return
+     */
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        // Since the editor shows all pet attributes, define a projection that contains
-        // all columns from the pet table
+        // Since the editor shows all inventory attributes, define a projection that contains
+        // all columns from the inventory table
         String[] projection = {
                 InventoryEntry._ID,
                 InventoryEntry.COLUMN_PRODUCT_NAME,
@@ -110,23 +108,27 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
                 InventoryEntry.COLUMN_SUPPLIER_NAME,
                 InventoryEntry.COLUMN_SUPPLIER_PHONE
         };
-
         //Log the current URL being passed to the cursorloader
         Log.d( "CurrentInventoryItemUri", "OnCreateLoader Method currentInventoryItemURI " + currentInventoryItemUri );
 
         // This loader will execute the ContentProvider's query method on a background thread
         return new CursorLoader( this,   // Parent activity context
-                currentInventoryItemUri,         // Query the content URI for the current pet
+                currentInventoryItemUri,         // Query the content URI for the current inventory item
                 projection,             // Columns to include in the resulting Cursor
                 null,                   // No selection clause
                 null,                   // No selection arguments
                 null );                  // Default sort order
     }
 
+    /**
+     * When the data is finished loading then populate the data in the textviews, etc
+     *
+     * @param loader
+     * @param cursor
+     */
     @Override
-    public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
-
-        // Bail early if the cursor is null or there is less than 1 row in the cursor
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        // Return early if the cursor is null or there is less than 1 row in the cursor
         if (cursor == null || cursor.getCount() < 1) {
             return;
         }
@@ -134,7 +136,7 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
         // Proceed with moving to the first row of the cursor and reading data from it
         // (This should be the only row in the cursor)
         if (cursor.moveToFirst()) {
-            // Find the columns of pet attributes that we're interested in
+            // Find the columns of inventory attributes that we're interested in
             int productNameColumnIndex = cursor.getColumnIndex( InventoryEntry.COLUMN_PRODUCT_NAME );
             int mediaTypeColumnIndex = cursor.getColumnIndex( InventoryEntry.COLUMN_MEDIA_TYPE );
             int priceColumnIndex = cursor.getColumnIndex( InventoryEntry.COLUMN_PRICE );
@@ -143,7 +145,6 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
             int supplierPhoneColumnIndex = cursor.getColumnIndex( InventoryEntry.COLUMN_SUPPLIER_PHONE );
 
             // Extract out the value from the Cursor for the given column index
-
             String productName = cursor.getString( productNameColumnIndex );
             int mediaType = cursor.getInt( mediaTypeColumnIndex );
             double price = cursor.getDouble( priceColumnIndex );
@@ -173,25 +174,23 @@ public class ViewerActivity extends AppCompatActivity implements LoaderManager.L
                     mediaTypeTextView.setText( "MP3" );
                     break;
             }
-
-                // Update the views on the screen with the values from the database
-                productNameTextView.setText( productName );
-
-            if(price == 0.0){
-                priceTextView.setText(priceString);
+            // Update the views on the screen with the values from the database
+            productNameTextView.setText( productName );
+            //Display either FREE or Price Not Found for an item with 0.0 or a null value for price
+            if (price == 0.0) {
+                priceTextView.setText( priceString );
             } else {
                 priceTextView.setText( Double.toString( price ) );
             }
+            //Bind the value to the textview
+            quantityTextView.setText( Integer.toString( quantity ) );
+            supplierNameTextView.setText( supplierName );
+            supplierPhoneTextView.setText( supplierPhone );
 
-                quantityTextView.setText( Integer.toString( quantity ) );
-                supplierNameTextView.setText( supplierName );
-                supplierPhoneTextView.setText( supplierPhone );
-
-            }
         }
+    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
-    }
+}

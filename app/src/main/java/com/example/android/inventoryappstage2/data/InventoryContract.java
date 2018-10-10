@@ -10,24 +10,22 @@ import android.provider.BaseColumns;
 
 public final class InventoryContract {
 
+    //Content Authority constant
+    public static final String CONTENT_AUTHORITY = "com.example.android.inventoryappstage2";
+    //Constant for base URI actions will be appended to this URI value
+    public static final Uri BASE_CONTENT_URI = Uri.parse( "content://" + CONTENT_AUTHORITY );
+    //Constant for the table name that will be accessed
+    public static final String PATH_INVENTORY = "inventory";
+
     //Empty constructor for the InventoryContract class
     private InventoryContract() {
     }
 
-    //Content Authority constant
-    public static final String CONTENT_AUTHORITY = "com.example.android.inventoryappstage2";
-
-    //Constant for base URI actions will be appended to this URI value
-    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
-
-    //Constant for the table name that will be accessed
-    public static final String PATH_INVENTORY = "inventory";
-
     //Inner class to define the inventory table
     public static final class InventoryEntry implements BaseColumns {
 
-        //URI to access pets table
-        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_INVENTORY);
+        //URI to access inventory table
+        public static final Uri CONTENT_URI = Uri.withAppendedPath( BASE_CONTENT_URI, PATH_INVENTORY );
 
         //Name of table for inventory items
         public static final String TABLE_NAME = "inventory";
@@ -38,7 +36,7 @@ public final class InventoryContract {
         //Product Name defined as TEXT
         public static final String COLUMN_PRODUCT_NAME = "product_name";
 
-        //Type of media
+        //Type of media defined as STRING
         public static final String COLUMN_MEDIA_TYPE = "media_type";
 
         //Price defined as REAL
@@ -62,10 +60,11 @@ public final class InventoryContract {
         public static final int MEDIA_TYPE_EPUB = 5;
         public static final int MEDIA_TYPE_MP3 = 6;
 
+        //Method to validate whether or not mediaType is valid
         public static boolean isValidMediaType(Integer mediaType) {
             if (mediaType == MEDIA_TYPE_UNKNOWN || mediaType == MEDIA_TYPE_PAPERBACK ||
-            mediaType == MEDIA_TYPE_AUDIOBOOK || mediaType == MEDIA_TYPE_HARDCOVER ||
-            mediaType == MEDIA_TYPE_KINDLE || mediaType == MEDIA_TYPE_EPUB ||
+                    mediaType == MEDIA_TYPE_AUDIOBOOK || mediaType == MEDIA_TYPE_HARDCOVER ||
+                    mediaType == MEDIA_TYPE_KINDLE || mediaType == MEDIA_TYPE_EPUB ||
                     mediaType == MEDIA_TYPE_MP3
                     ) {
                 return true;

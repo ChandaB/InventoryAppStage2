@@ -1,124 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    tools:context=".EditorActivity">
+    android:layout_height="wrap_content">
 
-    <!-- Product Details -->
     <LinearLayout
-        android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:focusableInTouchMode="true"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:context=".EditorActivity">
 
-        <!-- Label -->
-        <TextView
-            android:text="@string/product_details"
-            style="@style/SectionStyle" />
-
-        <!-- Input fields -->
+        <!-- Product Details -->
         <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:paddingLeft="4dp"
+            android:layout_weight="1"
             android:orientation="vertical">
-
-            <!-- Product Name field -->
-            <EditText
-                android:id="@+id/edit_product_name"
-                android:hint="@string/hint_product_name"
-                android:inputType="textCapWords"
-                style="@style/EditorFieldStyle" />
-
-            <!-- Media Type drop-down spinner -->
-            <Spinner
-                android:id="@+id/spinner_media_type"
-                android:layout_height="48dp"
-                android:layout_width="wrap_content"
-                android:paddingRight="16dp"
-                android:spinnerMode="dropdown"/>
-
-            <!-- Price field -->
-            <EditText
-            android:id="@+id/edit_price"
-            android:hint="@string/hint_price"
-            android:inputType="numberDecimal"
-            style="@style/EditorFieldStyle" />
+            <!-- Label -->
+            <TextView
+                style="@style/SectionStyle"
+                android:text="@string/product_details" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <Button
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:onClick="decrement"
-                    android:text="-" />
+                <!-- Product Name Header field -->
+                <TextView
+                    style="@style/EditorHeaderStyle"
+                    android:text="@string/product_name_header"
+                    tools:text="Product Name" />
 
-
+                <!-- Product Name Edit field -->
                 <EditText
-                    android:id="@+id/edit_quantity"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:paddingLeft="8dp"
-                    android:paddingRight="8dp"
-                    android:textAlignment="center"
-                    android:textColor="#000000" />
 
-                <Button
-                    android:layout_width="48dp"
+                    android:id="@+id/edit_product_name"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_product_name"
+                    android:inputType="textCapWords" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/EditorHeaderStyle"
+                    android:text="@string/media_format"
+                    tools:text="Media Format" />
+
+                <!-- Media Type drop-down spinner -->
+                <Spinner
+                    android:id="@+id/spinner_media_type"
+                    android:layout_width="0dp"
                     android:layout_height="48dp"
-                    android:onClick="increment"
-                    android:text="+" />
+                    android:layout_weight=".7"
+                    android:paddingEnd="16dp"
+                    android:spinnerMode="dropdown" />
 
 
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Product Name Header field -->
+                <TextView
+                    style="@style/EditorHeaderStyle"
+                    android:text="@string/price_header"
+                    tools:text="Price" />
+
+                <!-- Price field -->
+                <EditText
+                    android:id="@+id/edit_price"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_price"
+                    android:inputType="numberDecimal" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Quantity Header field -->
+                <TextView
+                    style="@style/EditorHeaderStyle"
+                    android:text="@string/quantity_header"
+                    tools:text="Quantity" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".7"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:onClick="decrement"
+                        android:text="@string/minus" />
+
+
+                    <EditText
+                        android:id="@+id/edit_quantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:paddingLeft="8dp"
+                        android:paddingRight="8dp"
+                        android:textAlignment="center"
+                        android:textColor="#000000" />
+
+                    <Button
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:onClick="increment"
+                        android:text="@string/plus" />
+
+
+                </LinearLayout>
+
+            </LinearLayout>
+
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Supplier Information -->
-    <LinearLayout
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
 
-        <!-- Label -->
-        <TextView
-            android:text="@string/supplier_information"
-            style="@style/SectionStyle" />
-
-        <!-- Input fields -->
+        <!-- Supplier Information -->
         <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="2"
-            android:paddingLeft="4dp"
+            android:layout_weight="1"
             android:orientation="vertical">
 
-            <!-- Supplier Name field -->
-            <EditText
-                android:id="@+id/edit_supplier_name"
-                android:hint="@string/hint_supplier_name"
-                android:inputType="textCapWords"
-                style="@style/EditorFieldStyle" />
+            <!-- Label -->
+            <TextView
+                style="@style/SectionStyle"
+                android:text="@string/supplier_information" />
 
-            <!-- Supplier Phone field -->
-            <EditText
-                android:id="@+id/edit_phone"
-                android:hint="@string/hint_phone"
-                android:inputType="phone"
-                android:maxLength="14"
-                android:selectAllOnFocus="true"
-                style="@style/EditorFieldStyle" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Quantity Header field -->
+                <TextView
+                    style="@style/EditorHeaderStyle"
+                    android:text="@string/supplier_name_header"
+                    tools:text="Supplier Name" />
+
+
+                <!-- Supplier Name field -->
+                <EditText
+                    android:id="@+id/edit_supplier_name"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_supplier_name"
+                    android:inputType="textCapWords" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Quantity Header field -->
+                <TextView
+                    style="@style/EditorHeaderStyle"
+                    android:text="@string/supplier_phone_header"
+                    tools:text="Supplier Phone" />
+
+                <!-- Supplier Phone field -->
+                <EditText
+                    android:id="@+id/edit_phone"
+                    style="@style/EditorFieldStyle"
+                    android:hint="@string/hint_phone"
+                    android:inputType="phone"
+                    android:maxLength="14"
+                    android:selectAllOnFocus="true" />
+
+            </LinearLayout>
         </LinearLayout>
+
     </LinearLayout>
 
-
-</LinearLayout>
+</ScrollView>

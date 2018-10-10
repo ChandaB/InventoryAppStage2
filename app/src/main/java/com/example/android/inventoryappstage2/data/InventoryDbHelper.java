@@ -18,11 +18,18 @@ public class InventoryDbHelper extends SQLiteOpenHelper {
     //Current Database version
     private static final int DATABASE_VERSION = 1;
 
-    //Constructor for DBHelper class
+    /**
+     * Constructor for DBHelper class
+     * @param context
+     */
     public InventoryDbHelper(Context context) {
         super( context, DATABASE_NAME, null, DATABASE_VERSION );
     }
 
+    /**
+     *
+     * @param db variable used to construct db table
+     */
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Create a string to construct the SQL for the creation of the inventory table
@@ -39,6 +46,12 @@ public class InventoryDbHelper extends SQLiteOpenHelper {
         db.execSQL( SQL_CREATE_INVENTORY_TABLE );
     }
 
+    /**
+     *
+     * @param db variable identifying database
+     * @param oldVersion input value for previous version
+     * @param newVersion input value for new version if an upgrade is being performed
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // The database is still at version 1, so there's nothing to do be done here (yet).
